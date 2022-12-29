@@ -80,7 +80,7 @@ struct AddNewTask: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .overlay(alignment: .bottomTrailing) {
                 Button {
-                    // ACTION?
+                    self.taskViewModel.showDatePicker.toggle()
                 } label: {
                     Image(systemName: "calendar")
                         .foregroundColor(.black)
@@ -117,7 +117,11 @@ struct AddNewTask: View {
             
             // MARK: Save Button
             Button {
-                // ACTION?
+                // MARK: If Success Close View
+                // If Failure Reset View
+                if self.taskViewModel.addTask(context: self.env.managedObjectContext) {
+                    self.env.dismiss()
+                }
             } label: {
                 Text("Save Task")
                     .font(.callout)
@@ -137,6 +141,26 @@ struct AddNewTask: View {
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .padding()
+        .overlay {
+            ZStack {
+                if self.taskViewModel.showDatePicker {
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            self.taskViewModel.showDatePicker = false
+                        }
+                    
+                    // MARK: Disable Past Dates
+                    DatePicker.init("", selection: self.$taskViewModel.taskDeadline, in: Date.now...Date.distantFuture)
+                        .datePickerStyle(.graphical)
+                        .labelsHidden()
+                        .background(.white, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .padding()
+                }
+            }
+            .animation(.easeInOut, value: self.taskViewModel.showDatePicker)
+        }
     }
     
     // MARK: Custom Segmented Bar For Task Type

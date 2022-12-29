@@ -14,6 +14,16 @@ struct Home: View {
     // MARK: Matched Geometry Namespace
     @Namespace var animation
     
+    // MARK: Fetch Tasks
+    @FetchRequest(
+        entity: Task.entity(),
+        sortDescriptors: [NSSortDescriptor(
+            keyPath: \Task.deadline,
+            ascending: false)],
+        predicate: nil,
+        animation: .easeInOut)
+    var tasks: FetchedResults<Task>
+    
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack {
@@ -27,11 +37,13 @@ struct Home: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical)
                 
+                // MARK: Custom Segmented Bar
                 CustomSegmentedBar()
                     .padding(.top, 5)
                 
                 // MARK: Task View
-                // Later will come
+                CustomTaskView()
+                    .padding(.top, 10)
             }
             .padding()
         }
@@ -66,9 +78,17 @@ struct Home: View {
             }
         }
         .fullScreenCover(isPresented: self.$taskViewModel.openEditTask) {
+            self.taskViewModel.resetTaskData()
+        } content: {
             AddNewTask()
                 .environmentObject(self.taskViewModel)
         }
+    }
+    
+    // MARK: Task View
+    @ViewBuilder
+    func CustomTaskView() -> some View {
+        
     }
     
     // MARK: Custom Segmented Bar
