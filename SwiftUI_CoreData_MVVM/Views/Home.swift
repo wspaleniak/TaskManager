@@ -38,7 +38,7 @@ struct Home: View {
         .overlay(alignment: .bottom) {
             // MARK: Add button
             Button {
-                // ACTION?
+                self.taskViewModel.openEditTask.toggle()
             } label: {
                 Label {
                     Text("Add Task")
@@ -65,6 +65,10 @@ struct Home: View {
                 .ignoresSafeArea()
             }
         }
+        .fullScreenCover(isPresented: self.$taskViewModel.openEditTask) {
+            AddNewTask()
+                .environmentObject(self.taskViewModel)
+        }
     }
     
     // MARK: Custom Segmented Bar
@@ -85,6 +89,9 @@ struct Home: View {
                             Capsule()
                                 .fill(.black)
                                 .matchedGeometryEffect(id: "TAB", in: animation)
+                        } else {
+                            Capsule()
+                                .strokeBorder(.black)
                         }
                     }
                     .contentShape(Capsule())

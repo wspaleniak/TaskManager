@@ -14,6 +14,9 @@ struct AddNewTask: View {
     // MARK: All Environment Values in one Variable
     @Environment(\.self) var env
     
+    // MARK: Matched Geometry Namespace
+    @Namespace var animation
+    
     var body: some View {
         VStack(spacing: 12) {
             Text("Edit Task")
@@ -98,10 +101,75 @@ struct AddNewTask: View {
             }
             
             Divider()
+                .padding(.vertical, 10)
             
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Task Type")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                
+                CustomSegmentedBarForTaskType()
+                    .padding(.top, 8)
+            }
+            
+            Divider()
+                .padding(.vertical, 10)
+            
+            // MARK: Save Button
+            Button {
+                // ACTION?
+            } label: {
+                Text("Save Task")
+                    .font(.callout)
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .foregroundColor(.white)
+                    .background {
+                        Capsule().fill(.black)
+                    }
+            }
+            .frame(maxHeight: .infinity, alignment: .bottom)
+            .padding(.bottom, 10)
+            .disabled(self.taskViewModel.taskTitle == "")
+            .opacity(self.taskViewModel.taskTitle == "" ? 0.6 : 1.0)
+
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .padding()
+    }
+    
+    // MARK: Custom Segmented Bar For Task Type
+    @ViewBuilder
+    func CustomSegmentedBarForTaskType() -> some View {
+        let taskTypes: [String] = ["Basic", "Urgent", "Important"]
+        HStack(spacing: 10) {
+            ForEach(taskTypes, id: \.self) { type in
+                Text(type)
+                    .font(.callout)
+                    .fontWeight(.semibold)
+                    .scaleEffect(0.9)
+                    .foregroundColor(self.taskViewModel.taskType == type ? .white : .black)
+                    .padding(.vertical, 6)
+                    .frame(maxWidth: .infinity)
+                    .background {
+                        if self.taskViewModel.taskType == type {
+                            Capsule()
+                                .fill(.black)
+                                .matchedGeometryEffect(id: "TYPE", in: animation)
+                        } else {
+                            Capsule()
+                                .strokeBorder(.black)
+                        }
+                    }
+                    .contentShape(Capsule())
+                    .onTapGesture {
+                        withAnimation {
+                            self.taskViewModel.taskType = type
+                        }
+                    }
+            }
+        }
     }
 }
 
