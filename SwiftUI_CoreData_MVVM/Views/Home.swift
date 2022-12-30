@@ -24,6 +24,9 @@ struct Home: View {
         animation: .easeInOut)
     var tasks: FetchedResults<Task>
     
+    // MARK: Environment Values
+    @Environment(\.self) var env
+    
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack {
@@ -69,9 +72,11 @@ struct Home: View {
             .frame(maxWidth: .infinity)
             .background {
                 LinearGradient(colors: [
-                    .white.opacity(0.05),
-                    .white.opacity(0.40),
-                    .white.opacity(0.70),
+                    .white.opacity(0.00),
+                    .white.opacity(0.15),
+                    .white.opacity(0.30),
+                    .white.opacity(0.45),
+                    .white.opacity(0.75),
                     .white
                 ], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
@@ -88,7 +93,98 @@ struct Home: View {
     // MARK: Task View
     @ViewBuilder
     func CustomTaskView() -> some View {
-        
+        LazyVStack(spacing: 10) {
+            ForEach(tasks) { task in
+                CustomTaskRowView(task: task)
+            }
+        }
+        .padding(.top, 20)
+    }
+    
+    // MARK: Task Row View
+    @ViewBuilder
+    func CustomTaskRowView(task: Task) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(task.type ?? "")
+                    .font(.callout)
+                    .padding(.vertical, 5)
+                    .padding(.horizontal)
+                    .background {
+                        Capsule()
+                            .fill(.white.opacity(0.3))
+                    }
+                
+                Spacer()
+                
+                // MARK: Edit Button only for Non Completed Tasks
+                if !task.isCompleted {
+                    Button {
+                        self.taskViewModel.editTask = task
+                        self.taskViewModel.openEditTask = true
+                        self.taskViewModel.setupTask()
+                    } label: {
+                        Image(systemName: "square.and.pencil")
+                            .foregroundColor(.black)
+                    }
+                }
+            }
+            
+            Text(task.title ?? "")
+                .font(.title2.bold())
+                .foregroundColor(.black)
+                .padding(.vertical, 10)
+            
+            HStack(alignment: .bottom, spacing: 0) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Label {
+                        Text((task.deadline ?? Date()).formatted(date: .long, time: .omitted))
+                    } icon: {
+                        Image(systemName: "calendar")
+                            .foregroundColor(.black)
+                    }
+                    .font(.caption)
+                    
+                    Label {
+                        Text((task.deadline ?? Date()).formatted(date: .omitted, time: .shortened))
+                    } icon: {
+                        Image(systemName: "clock")
+                            .foregroundColor(.black)
+                    }
+                    .font(.caption)
+
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                if !task.isCompleted {
+                    Button {
+                        // MARK: Update Core Data
+                        task.isCompleted.toggle()
+                        try? self.env.managedObjectContext.save()
+                    } label: {
+                        Image(systemName: "circle")
+                            .foregroundColor(.black)
+                            .font(.title)
+                    }
+                } else {
+                    Button {
+                        // MARK: Update Core Data
+                        task.isCompleted.toggle()
+                        try? self.env.managedObjectContext.save()
+                    } label: {
+                        Image(systemName: "checkmark.circle")
+                            .foregroundColor(.black)
+                            .font(.title)
+                    }
+                }
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color(task.color ?? "Yellow").opacity(0.75))
+        }
     }
     
     // MARK: Custom Segmented Bar

@@ -24,7 +24,7 @@ struct AddNewTask: View {
                 .frame(maxWidth: .infinity)
                 .overlay(alignment: .leading) {
                     Button {
-                        env.dismiss()
+                        self.env.dismiss()
                     } label: {
                         Image(systemName: "arrow.left")
                             .font(.title3)
@@ -118,7 +118,6 @@ struct AddNewTask: View {
             // MARK: Save Button
             Button {
                 // MARK: If Success Close View
-                // If Failure Reset View
                 if self.taskViewModel.addTask(context: self.env.managedObjectContext) {
                     self.env.dismiss()
                 }
