@@ -50,6 +50,7 @@ class TaskViewModel: ObservableObject {
         self.taskColor = "Yellow"
         self.taskDeadline = Date()
         self.taskType = "Basic"
+        self.editTask = nil
     }
     
     // MARK: If Edit Task is available then setup existing Data
@@ -59,5 +60,14 @@ class TaskViewModel: ObservableObject {
         self.taskColor = editTask.color ?? "Yellow"
         self.taskDeadline = editTask.deadline ?? Date()
         self.taskType = editTask.type ?? "Basic"
+    }
+    
+    func removeTask(context: NSManagedObjectContext) -> Bool {
+        guard let editTask = self.editTask else { return false }
+        context.delete(editTask)
+        if let _ = try? context.save() {
+            return true
+        }
+        return false
     }
 }

@@ -47,6 +47,11 @@ struct Home: View {
                 // MARK: Task View
                 CustomTaskView()
                     .padding(.top, 10)
+                
+                Rectangle()
+                    .fill(.white)
+                    .frame(height: 40)
+                    .frame(maxWidth: .infinity)
             }
             .padding()
         }
@@ -94,7 +99,8 @@ struct Home: View {
     @ViewBuilder
     func CustomTaskView() -> some View {
         LazyVStack(spacing: 10) {
-            ForEach(tasks) { task in
+            // MARK: Custom Filtered Request View
+            DynamicFilteredView(currentTab: self.taskViewModel.currentTab) { (task: Task) in
                 CustomTaskRowView(task: task)
             }
         }
@@ -118,7 +124,7 @@ struct Home: View {
                 Spacer()
                 
                 // MARK: Edit Button only for Non Completed Tasks
-                if !task.isCompleted {
+                if !task.isCompleted && self.taskViewModel.currentTab != "Failed" {
                     Button {
                         self.taskViewModel.editTask = task
                         self.taskViewModel.openEditTask = true
@@ -156,7 +162,7 @@ struct Home: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
-                if !task.isCompleted {
+                if !task.isCompleted && self.taskViewModel.currentTab != "Failed" {
                     Button {
                         // MARK: Update Core Data
                         task.isCompleted.toggle()
@@ -190,7 +196,7 @@ struct Home: View {
     // MARK: Custom Segmented Bar
     @ViewBuilder
     func CustomSegmentedBar() -> some View {
-        let tabs = ["Today", "Upcoming", "Task Done"]
+        let tabs = ["Today", "Upcoming", "Done", "Failed"]
         HStack(spacing: 10) {
             ForEach(tabs, id: \.self) { tab in
                 Text(tab)

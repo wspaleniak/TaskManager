@@ -30,7 +30,18 @@ struct AddNewTask: View {
                             .font(.title3)
                             .foregroundColor(.black)
                     }
-
+                }
+                .overlay(alignment: .trailing) {
+                    Button {
+                        if self.taskViewModel.removeTask(context: self.env.managedObjectContext) {
+                            self.env.dismiss()
+                        }
+                    } label: {
+                        Image(systemName: "trash")
+                            .font(.title3)
+                            .foregroundColor(.red)
+                    }
+                    .opacity(self.taskViewModel.editTask == nil ? 0 : 1)
                 }
             
             VStack(alignment: .leading, spacing: 12) {
